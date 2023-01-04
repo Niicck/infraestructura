@@ -10,6 +10,14 @@
         hcloud_server_location: "ash"
         hcloud_token: "{{ lookup('ansible.builtin.env', 'HCLOUD_TOKEN') }}"
 
+- name: Create DNS records on Hetzner Cloud
+  hosts: localhost
+  tasks:
+    - import_tasks: roles/hetzner/tasks/dns.yml
+      vars:
+        domain: supergood.site
+        hetzner_token: "{{ lookup('ansible.builtin.env', 'HETZNER_DNS_TOKEN') }}"
+
 - name: Setup a new server on Hetzner Cloud
   hosts: hetzner
   roles:

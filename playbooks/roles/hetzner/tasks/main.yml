@@ -2,11 +2,13 @@
 - name: "Set variables"
   set_fact:
     hcloud_ssh_key_name: "nick-macbook"
+
 - name: Add ssh key to Hetzner
   hcloud_ssh_key:
     name: "{{ hcloud_ssh_key_name }}"
     public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     state: present
+
 - name: Create a server
   hcloud_server:
     name: "{{ hcloud_server_name }}"
@@ -18,11 +20,17 @@
       - "{{ hcloud_ssh_key_name }}"
     state: present
   register: hcloud_server_result
+
 - name: Print server values
   debug:
     msg: "{{ hcloud_server_result }}"
+
+- name: Save address
+  set_fact:
+    hcloud_server_address: "{{ hcloud_server_result.hcloud_server.ipv4_address }}"
+
 - name: Add server to in-memory inventory group
   ansible.builtin.add_host:
     groups: hetzner
-    name: "{{ hcloud_server_result.hcloud_server.ipv4_address }}"
+    name: "{{ hcloud_server_address }}"
     ansible_user: root

@@ -1,0 +1,30 @@
+---
+- name: Create DNS Zone for domain
+  uri:
+    method: POST
+    url: "https://dns.hetzner.com/api/v1/zones"
+    body_format: "json"
+    body:
+      "name": "{{ domain }}"
+      "ttl": 3600
+    headers:
+      "Content-Type": application/json'
+      "Auth-API-Token": "{{ hetzner_token }}"
+
+- name: Set up domain
+  community.dns.hetzner_dns_record:
+    state: present
+    zone_name: "{{ domain }}"
+    type: A
+    record: "{{ domain }}"
+    value: "{{ hcloud_server_address }}"
+    ttl: 3600
+
+- name: Set up wildcard domain
+  community.dns.hetzner_dns_record:
+    state: present
+    zone_name: "{{ domain }}"
+    type: A
+    record: "*.{{ domain }}"
+    value: "{{ hcloud_server_address }}"
+    ttl: 3600
