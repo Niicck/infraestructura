@@ -31,6 +31,6 @@
 
 - name: Add server to in-memory inventory group
   ansible.builtin.add_host:
-    groups: hetzner
+    groups: supergood
     name: "{{ hcloud_server_address }}"
     ansible_user: root

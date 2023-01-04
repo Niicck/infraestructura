@@ -16,6 +16,3 @@
     args:
       chdir: /tmp
       creates: /home/dokku
-
-- install postgres
-- yeah

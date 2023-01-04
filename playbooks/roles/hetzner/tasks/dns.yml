@@ -1,5 +1,12 @@
 ---
+- name: Check if domain zone exists
+  community.dns.hetzner_dns_zone_info:
+    zone_name: "{{ domain }}"
+  register: zone_info_result
+  ignore_errors: yes
+
 - name: Create DNS Zone for domain
+  when: zone_info_result.failed is true and zone_info_result.msg == "Zone not found"
   uri:
     method: POST
     url: "https://dns.hetzner.com/api/v1/zones"

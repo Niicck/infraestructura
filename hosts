@@ -1,4 +1,4 @@
 localhost  ansible_connection=local
 
-[hetzner]
+[supergood]
 5.161.118.152
