@@ -1,0 +1,4 @@
+localhost  ansible_connection=local
+
+[hetzner]
+5.161.118.152

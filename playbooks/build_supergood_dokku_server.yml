@@ -1,0 +1,18 @@
+- name: Build and setup a new server on Hetzner Cloud
+  hosts: localhost
+  roles:
+    - role: hetzner
+      vars:
+        hcloud_server_name: "supergood-dokku"
+        hcloud_backups: false
+        hcloud_server_server_type: "cpx11"
+        hcloud_server_image: "ubuntu-22.04"
+        hcloud_server_location: "ash"
+        hcloud_token: "{{ lookup('ansible.builtin.env', 'HCLOUD_TOKEN') }}"
+
+- name: Setup a new server on Hetzner Cloud
+  hosts: hetzner
+  roles:
+    - role: ubuntu
+      vars:
+        - created_username: nick
