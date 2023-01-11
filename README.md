@@ -2,15 +2,14 @@
 
 This contains the instructions to set up a bare VPS server with everything I need to host my projects.
 
-- [Getting Started](#getting-started)
+- [Install Dependencies](#install-dependencies)
 - [Build a Hetzner Server](#build-a-hetzner-server)
 - [Using Hetzner DNS](#using-hetzner-dns)
 - [Read more](#read-more)
 
-
-## Getting Started
-1. run `sh utils/install_mac.sh` to install initial ansible dependencies.
-
+## Install Dependencies
+1. `pip install`
+2. `ansible-galaxy install -r requirements.yml`
 
 ## Build a Hetzner Server
 1. Create a new project within Hetzer Cloud.

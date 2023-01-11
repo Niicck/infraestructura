@@ -1,2 +1,9 @@
 # Secrets
 .env
+
+# vagrant
+Vagrantfile
+.vagrant
+
+# Python
+venv

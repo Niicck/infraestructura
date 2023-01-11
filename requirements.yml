@@ -1,0 +1,11 @@
+---
+roles:
+  - name: dokku_bot.ansible_dokku
+    version: 2022.12.19
+
+collections:
+  - name: hetzner.hcloud
+    version: 1.9.0
+  - name: community.dns.hetzner_dns_records
+    version: 2.4.2
+...

@@ -5,7 +5,7 @@
   register: zone_info_result
   ignore_errors: yes
 
-- name: Create DNS Zone for domain
+- name: Create DNS Zone for domain if it doesn't exist
   when: zone_info_result.failed is true and zone_info_result.msg == "Zone not found"
   uri:
     method: POST
