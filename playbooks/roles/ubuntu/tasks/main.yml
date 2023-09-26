@@ -5,6 +5,27 @@
     state: latest
     update_cache: true
 
+- name: Update apt and install required system packages
+  apt:
+    update_cache: true
+    state: latest
+    pkg:
+      - curl
+      - vim
+      - nano
+      - ufw
+      - fail2ban
+
+- name: UFW - Allow SSH connections
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: UFW - Enable and deny by default
+  community.general.ufw:
+    state: enabled
+    default: deny
+
 - name: Setup passwordless sudo
   lineinfile:
     path: /etc/sudoers
@@ -27,30 +48,11 @@
     state: present
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
-- name: Disable password authentication for root
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    state: present
-    regexp: '^#?PermitRootLogin'
-    line: 'PermitRootLogin prohibit-password'
-
-- name: Update apt and install required system packages
-  apt:
-    update_cache: true
-    cache_valid_time: 3600
-    pkg:
-      - curl
-      - vim
-      - nano
-      - ufw
-    state: latest
-
-- name: UFW - Allow SSH connections
-  community.general.ufw:
-    rule: allow
-    name: OpenSSH
-
-- name: UFW - Enable and deny by default
-  community.general.ufw:
-    state: enabled
-    default: deny
+- name: Copy sshd_config
+  copy:
+    src: etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+  notify: Restart SSH
