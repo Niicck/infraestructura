@@ -100,10 +100,35 @@ With that API token in place, the `build_supergood_server.yml` playbook will be 
 
 ## Run
 
+Remember to source your .env variables in your shell!
+```shell
+set -a; source .env; set +a
+```
+
 After you've finished setup, you can build your own Hetzner servers by running this playbook:
 
 ```bash
-./ansible-playbook.sh playbooks/build_supergood_server.yml -e "env=staging"
+ansible-playbook playbooks/build_supergood_server.yml -e "env=staging"
 ```
 
 `env=staging` to build the staging environment. `env=production` to build the production environment.
+
+Now we can use a dynamic inventory to gather our hosts. Test it out with:
+```bash
+ansible-inventory -i inventories/staging --list -e "ansible_user=root"
+```
+
+Send a test "ping" to your staging servers in the "supergood" group.
+
+```bash
+ansible -i inventories/staging supergood -m ping -e "ansible_user=root"
+```
+
+Note! For now, we're explicitly setting `ansible_user=root` because we haven't created
+our actual ansible_user yet. That will come when we...
+
+...Run a second playbook to setup our ubuntu servers:
+
+```bash
+ansible-playbook -i inventories/staging playbooks/configure_supergood_servers.yml
+```

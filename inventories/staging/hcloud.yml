@@ -1,4 +1,4 @@
 ---
 plugin: hetzner.hcloud.hcloud
-label_selector: env=staging,project=supergood
+label_selector: environment=staging,project=supergood
 group: supergood

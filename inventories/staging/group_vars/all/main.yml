@@ -1,2 +1,3 @@
 ---
 env: staging
+ansible_user: nick
