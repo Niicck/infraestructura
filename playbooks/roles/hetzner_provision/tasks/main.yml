@@ -1,0 +1,28 @@
+---
+- name: Add your ssh key to Hetzner
+  hetzner.hcloud.hcloud_ssh_key:
+    name: "{{ hetzner_ssh_key_name }}"
+    public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    state: present
+
+- name: Provision a Server
+  hetzner.hcloud.hcloud_server:
+    name: "{{ env }}-{{ hetzner_server_name }}"
+    server_type: "{{ hetzner_server_type }}"
+    image: "{{ hetzner_image }}"
+    location: "{{ hetzner_location }}"
+    enable_ipv4: "{{ hetzner_enable_ipv4 }}"
+    enable_ipv6: "{{ hetzner_enable_ipv6 }}"
+    backups: "{{ hetzner_backups }}"
+    labels:
+      environment: "{{ env }}"
+      project: "{{ hetzner_project_label }}"
+    ssh_keys:
+      - "{{ hetzner_ssh_key_name }}"
+    state: present
+  register: hetzner_server_result
+
+- name: Save server_address
+  set_fact:
+    server_address: "{{ hetzner_server_result.hcloud_server.ipv4_address }}"
+...

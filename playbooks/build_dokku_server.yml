@@ -3,13 +3,6 @@
   hosts: localhost
   roles:
     - role: hetzner
-      vars:
-        hcloud_server_name: "supergood-dokku"
-        hcloud_backups: false
-        hcloud_server_server_type: "cpx11"
-        hcloud_server_image: "ubuntu-22.04"
-        hcloud_server_location: "ash"
-        hcloud_token: "{{ lookup('ansible.builtin.env', 'HCLOUD_TOKEN') }}"
 
 - name: Create DNS records on Hetzner Cloud
   hosts: localhost

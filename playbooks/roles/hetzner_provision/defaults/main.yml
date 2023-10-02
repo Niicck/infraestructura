@@ -1,0 +1,17 @@
+---
+# Cheapest server we can get
+hetzner_server_type: cpx11
+
+# Running ubuntu
+hetzner_image: ubuntu-22.04
+
+# On the east coast of the USA
+hetzner_location: ash
+
+# Enable both types of IP addresses
+hetzner_enable_ipv4: true
+hetzner_enable_ipv6: true
+
+# Specify if you want backups in your environment-specific vars.
+# It costs a little extra.
+hetzner_backups: false

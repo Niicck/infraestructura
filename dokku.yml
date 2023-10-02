@@ -1,6 +1,0 @@
-- name: Provision a Dokku instance
-  hosts: all
-  tasks:
-    - name: dokku apps:create node-js-app
-      dokku_app:
-        app: node-js-app

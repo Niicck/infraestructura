@@ -1,0 +1,4 @@
+---
+plugin: hetzner.hcloud.hcloud
+label_selector: env=staging,project=supergood
+group: supergood

@@ -1,9 +1,11 @@
 # Secrets
 .env
+# Ignore sensitive Ansible files
+secrets.yml
 
 # vagrant
 Vagrantfile
 .vagrant
 
-# Python
-venv
+# local
+.local

@@ -1,0 +1,34 @@
+---
+- name: Set zone
+  set_fact:
+    zone: "{{ site_domain }}"
+
+# For production, the DNS record is the same as the site_domain.
+- name: Set record (production)
+  set_fact:
+    record: "{{ zone }}"
+  when: env == 'production'
+
+# Non-production sites should be routed to a subdomains of the site_domain.
+# Example: if the site_domain is "example.com" and the env is "staging" then
+# our record should be "staging.example.com".
+- name: Set record (non-production)
+  set_fact:
+    record: "{{ env }}"
+  when: env != 'production'
+
+- name: Create A record for site_domain
+  community.general.cloudflare_dns:
+    zone: "{{ zone }}"
+    record: "{{ record }}"
+    type: A
+    value: "{{ server_address }}"
+    state: present
+
+- name: Create A record for subdomains
+  community.general.cloudflare_dns:
+    zone: "{{ zone }}"
+    record: "*.{{ record }}"
+    type: A
+    value: '{{ server_address }}'
+    state: present
