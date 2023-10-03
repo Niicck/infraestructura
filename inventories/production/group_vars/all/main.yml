@@ -1,3 +1,2 @@
 ---
 env: production
-ansible_user: nick

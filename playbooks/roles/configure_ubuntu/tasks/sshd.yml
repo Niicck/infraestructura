@@ -1,9 +1,12 @@
+---
+# Make changes to sshd_config
+
 - name: Disable password authentication for root
   lineinfile:
     path: /etc/ssh/sshd_config
     state: present
     regexp: '^#?PermitRootLogin'
-    line: 'PermitRootLogin prohibit-password'
+    line: 'PermitRootLogin no'
 
 - name: Disable password authentication for everyone
   lineinfile:

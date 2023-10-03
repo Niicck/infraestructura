@@ -115,20 +115,21 @@ ansible-playbook playbooks/build_supergood_server.yml -e "env=staging"
 
 Now we can use a dynamic inventory to gather our hosts. Test it out with:
 ```bash
-ansible-inventory -i inventories/staging --list -e "ansible_user=root"
+ansible-inventory -i inventories/staging --list
 ```
 
-Send a test "ping" to your staging servers in the "supergood" group.
-
-```bash
-ansible -i inventories/staging supergood -m ping -e "ansible_user=root"
-```
-
-Note! For now, we're explicitly setting `ansible_user=root` because we haven't created
-our actual ansible_user yet. That will come when we...
+Note! For now, we're explicitly setting `ansible_user=root` to overwrite the custom user we have set in our group_vars, because we haven't created that user yet. That will come when we...
 
 ...Run a second playbook to setup our ubuntu servers:
 
 ```bash
 ansible-playbook -i inventories/staging playbooks/configure_supergood_servers.yml
+```
+
+This updates our packages, creates our custom "ansible_user", and implements some basic safety protocols, like restricting server access to ssh key authentication only.
+
+We can see that our default ansible.cfg `remote_user` works by pinging our server:
+
+```bash
+ansible -i inventories/staging supergood -m ping
 ```

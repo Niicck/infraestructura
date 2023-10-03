@@ -26,15 +26,20 @@
     append: true
     create_home: true
 
+- name: Change shell to bash for new user
+  user:
+    name: "{{ created_username }}"
+    shell: /usr/bin/bash
+
 - name: Set authorized key for remote user
   ansible.posix.authorized_key:
     user: "{{ created_username }}"
     state: present
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
-- name: Apply sshd_config modifications
+- name: Make changes to sshd_config
   import_tasks: sshd.yml
-  notify: Reload SSH
+  notify: Restart SSH
 
 - name: Update apt and install required system packages
   apt:

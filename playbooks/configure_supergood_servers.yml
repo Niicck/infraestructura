@@ -2,22 +2,22 @@
 - name: Configure supergood ubuntu servers
   hosts: supergood
   gather_facts: false
+  vars:
+    created_username: nick
   tasks:
-    - name: Set "created_username" to "ansible_user" from group_vars
-      set_fact:
-        created_username: "{{ ansible_user }}"
-
     - name: Attempt SSH with created_username
-      command: 'ssh -o ConnectTimeout=5 {{ created_username }}@{{ inventory_hostname }} exit'
+      command: 'ssh -o PasswordAuthentication=no -o ConnectTimeout=5 {{ created_username }}@{{ ipv4 }} exit'
       register: ssh_check
       ignore_errors: true
       delegate_to: localhost
 
-    - name: Set ansible_user to "root" user if "created_username" hasn't been created yet.
+    - name: Set remote_user to "root" if created_username hasn't been created yet
       set_fact:
-        ansible_user: root
+        remote_user: root
       when: ssh_check is failed
 
     - name: Run ubuntu configurations
+      remote_user: "{{ remote_user | default('nick') }}"
+      become: true
       import_role:
         name: configure_ubuntu
