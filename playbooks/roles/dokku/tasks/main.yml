@@ -1,4 +1,0 @@
-- name: Installing Dokku
-  - hosts: supergood
-    roles:
-      - dokku_bot.ansible_dokku

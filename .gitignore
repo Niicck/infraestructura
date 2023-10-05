@@ -1,7 +1,9 @@
-# Secrets
+# env
 .env
+
 # Ignore sensitive Ansible files
 secrets.yml
+*.secrets.yml
 
 # vagrant
 Vagrantfile
@@ -9,3 +11,6 @@ Vagrantfile
 
 # local
 .local
+
+# artifacts
+.DS_Store

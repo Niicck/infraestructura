@@ -7,7 +7,7 @@
 
 - name: Provision a Server
   hetzner.hcloud.hcloud_server:
-    name: "{{ env }}-{{ hetzner_server_name }}"
+    name: "{{ env }}-{{ hetzner_server_name_base }}"
     server_type: "{{ hetzner_server_type }}"
     image: "{{ hetzner_image }}"
     location: "{{ hetzner_location }}"

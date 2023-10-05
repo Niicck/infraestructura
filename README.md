@@ -1,135 +1,264 @@
 # Infraestructura
 
-This repo contains ansible playbooks for building the server that runs supergood.site.
+This repo contains ansible playbooks for automated deployments of dokku servers and apps.
 
-It will:
+The playbooks themselves were specifically designed around the needs of deploying [supergood.site](supergood.site), but the roles and general setup could be useful to other projects.
 
-- Provision staging and production servers on Hetzner.
-- Install basic packages and security configurations on those server.
-- Install dokku on those servers.
-- Install dokku plugins required for my projects.
+## Table of Contents
 
-And then I have a dokku environment that I can deploy my projects' docker containers on!
-
-Use this repo as a guide for how you might want to deploy your own projects using ansible. You can use it wholesale, but it might be better if you cut/paste/modify it to suit your own needs. You want to deploy on Digitial Ocean instead? You want a third deployment environment? Different databases or plugins? Go for it.
-
+- [Table of Contents](#table-of-contents)
 - [Setup](#setup)
   - [1. Install Dependencies](#1-install-dependencies)
-  - [2. Configure Vars and Secrets](#2-configure-vars-and-secrets)
-  - [3. Setup Hetzner](#3-setup-hetzner)
-    - [I want this project to build Hetzner servers for me](#i-want-this-project-to-build-hetzner-servers-for-me)
-    - [I want to use my own pre-existing servers](#i-want-to-use-my-own-pre-existing-servers)
-  - [4. Setup Cloudflare](#4-setup-cloudflare)
+  - [2. Create local .env and var files](#2-create-local-env-and-var-files)
+  - [3. Set up External Services](#3-set-up-external-services)
+    - [Namecheap](#namecheap)
+    - [Hetzner](#hetzner)
+    - [Cloudflare](#cloudflare)
 - [Run](#run)
+  - [1. Source your .env variables in your shell](#1-source-your-env-variables-in-your-shell)
+  - [2. Provision your Hetzner servers](#2-provision-your-hetzner-servers)
+  - [3. Configure your Hetzner servers](#3-configure-your-hetzner-servers)
+  - [4. Install Dokku](#4-install-dokku)
+  - [5. Create apps](#5-create-apps)
+- [Development Guide](#development-guide)
+  - [Creating Dokku Apps](#creating-dokku-apps)
+    - [1. Define your apps](#1-define-your-apps)
+    - [2. Set up local environment](#2-set-up-local-environment)
+    - [3. Set app configs](#3-set-app-configs)
+    - [4. Set Environment Variables](#4-set-environment-variables)
+    - [5. Make additional configuration steps, as needed](#5-make-additional-configuration-steps-as-needed)
+    - [6. Apply changes](#6-apply-changes)
+  - [ssh into servers](#ssh-into-servers)
+- [Areas for Improvement](#areas-for-improvement)
+  - [Use ansible-vault for secrets.yml management](#use-ansible-vault-for-secretsyml-management)
+  - [Add ACL (Access Control Lists) for dokku apps](#add-acl-access-control-lists-for-dokku-apps)
+- [Thanks](#thanks)
 
 ## Setup
 
 ### 1. Install Dependencies
 
-First, install ansible if you haven't already.
+First, you'll need `ansible` installed on your local machine.
 
-The project requires some additional ansible collections and python packages to be installed. Install those with:
+After that, install the project's additional ansible galaxy dependencies.
 
 ```bash
 make install
 ```
 
-The Hetzner collection also has some additional python requirements. It's up to you how you want to install them ([venv](https://docs.python.org/3/library/venv.html), [Execution Environments](https://docs.ansible.com/ansible/devel/getting_started_ee/introduction.html), etc.). But installing them on the system is probably fine:
+Then install the python dependencies required by those ansible galaxy depedencies.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure Vars and Secrets
-
-Install default secrets templates: 
+### 2. Create local .env and var files
 
 ```bash
-make secrets
+ansible-playbook playbooks/setup_local.yml
 ```
 
-Change the vars within group_vars to suit your own project. The current values are what that I'm using to deploy supergood.site. To deploy your own site, at the very least, you'll want to change the `site_domain` and `hetzner.ssh_key_name` within `group_vars/all/main.yml`.
+### 3. Set up External Services
 
-My default hetzner configs will build the cheapest servers available in the US.
+To use these playbooks to build servers completely from scratch, there are a couple of manual steps to do with external service providers.
 
-### 3. Setup Hetzner
+#### Namecheap
 
-You'll need a server to deploy your dokku project on. This project has a playbook for automatically provisioning Hetzner servers for you. The assumption is that you'll be following that script, but there are suggestions for those who would rather use their own existing servers.
+Buy a domain from [Namecheap](https://www.namecheap.com/) or any other Domain registrar.
 
-#### I want this project to build Hetzner servers for me
+#### Hetzner
 
-There are a couple manual steps you'll need to take first.
+This project builds its servers on [Hetzner](https://www.hetzner.com/cloud) VMs.
 
-1. Create a new project within Hetzner Cloud.
-2. Generate a new API token for that project.
-3. Add that API token to `.env` as `HCLOUD_TOKEN`.
+Take these steps to enable the `provision_server.yml` playbook to automatically provision  servers for your dokku project to use.
 
-After that, the playbooks will have everything it needs to automatically provision Hetzner servers for you.
+1. Create an account in Hetzner Cloud
+   - Note: it can take a couple of days for your account to be verified. It took 5 days for mine.
+2. Create a new project within Hetzner Cloud.
+3. Generate an API token for that project.
+4. Add that API token as `HCLOUD_TOKEN` in `.env`.
 
-#### I want to use my own pre-existing servers
+#### Cloudflare
 
-If you want to use pre-existing servers instead of building them automatically with `build_hetzner_server.yml` then you'll need to make some manual adjustments to this project.
+You have a domain, you have a server. Now you have to connect them.
 
-The simplest way might be to rewrite this project's inventory files to use hardcoded server addresses. Follow the official docs to get an idea of how to do this: https://docs.ansible.com/ansible/latest/getting_started/get_started_inventory.html.
+This project uses Cloudflare as the DNS hosting service for mapping your domains ([example.com)](#) to the IP addresses (93.184.216.34) of your Hetzner servers.
 
-However, if your servers were built on Hetzner you could still use this project's dynamic Hetzner inventory and it will probably work:
-
-1. Add the `HCLOUD_TOKEN` api_token from your pre-existing project to your `.env`.
-2. Add the name of your pre-existing servers as `hetzner.server_name` in `group_vars/staging/main.yml` and `group_vars/production/main.yml`.
-
-### 4. Setup Cloudflare
-
-First, you need a domain. If you don't have one already, you can purchase one from a domain name registrar such as [NameCheap](https://www.namecheap.com/).
-
-Once you have a domain, you'll need to point it to the IP address of Hetzner server that you're going to create.
-
-Example:
-example.com > 93.184.216.34
-
-This project utilizes Cloudflare as its DNS hosting service to manage these mappings.
-
-The `build_supergood_server.yml` will create records for all subdomains (\*.example.com) as well as create records for all test non-production environments (\*.staging.example.com).
-
-To use Cloudflare:
+Take these steps to enable the `provision_server.yml` playbook to automatically create your Cloudflare DNS records.
 
 1. Create a free Cloudflare account
-2. Create an API token that has permission to edit any DNS zone.
-3. Add that API token to `.env` as `CLOUDFLARE_TOKEN`.
-
-With that API token in place, the `build_supergood_server.yml` playbook will be able to create DNS records for your new server.
+2. Add your domain as a "website".
+3. Follow their instructions. Within Namecheap, you'll have to add Cloudflare's nameservers as a Custom DNS within your domain settings.
+     - Note: They claim it can take up to 48 hours for the changes to register. It took about 2 hours for me.
+4. Back in Cloudflare, create an API token that has permission to edit your (website) zone's DNS and Zone Settings.
+  ![Edit "DNS", Edit "Zone Settings"](<docs/Create Cloudflare Token.png>)
+6. Add that API token as `CLOUDFLARE_TOKEN` in `.env`.
 
 ## Run
 
-Remember to source your .env variables in your shell!
+### 1. Source your .env variables in your shell
+
+Do this after every time you change them.
+
 ```shell
 set -a; source .env; set +a
 ```
 
-After you've finished setup, you can build your own Hetzner servers by running this playbook:
+### 2. Provision your Hetzner servers
 
 ```bash
-ansible-playbook playbooks/build_supergood_server.yml -e "env=staging"
+ansible-playbook playbooks/provision_server.yml -e "env=staging"
 ```
 
-`env=staging` to build the staging environment. `env=production` to build the production environment.
+**Notes**
 
-Now we can use a dynamic inventory to gather our hosts. Test it out with:
-```bash
-ansible-inventory -i inventories/staging --list
-```
+  - `env=staging` builds your staging environment.
+  - `env=production` builds your production environment.
+  - This project uses a dynamic inventory to gather hosts. Rather than needing to manually add your provisioned IP addresses to your `hosts.ini` file, the project uses the Hetzner API to automatically fetch them. Test it out with:
+    ```bash
+    ansible-inventory -i inventories/staging --list
+    ```
 
-Note! For now, we're explicitly setting `ansible_user=root` to overwrite the custom user we have set in our group_vars, because we haven't created that user yet. That will come when we...
+### 3. Configure your Hetzner servers
 
-...Run a second playbook to setup our ubuntu servers:
-
-```bash
-ansible-playbook -i inventories/staging playbooks/configure_supergood_servers.yml
-```
-
-This updates our packages, creates our custom "ansible_user", and implements some basic safety protocols, like restricting server access to ssh key authentication only.
-
-We can see that our default ansible.cfg `remote_user` works by pinging our server:
+This installs core packages, creates a sudoless remote_user, and does some basic security hardening.
 
 ```bash
-ansible -i inventories/staging supergood -m ping
+ansible-playbook -i inventories/staging playbooks/configure_servers.yml
 ```
+
+**Notes**
+
+  - `-i inventories/staging` runs playbooks on your staging server.
+  - `-i inventories/production` runs playbooks on your production server.
+  - Test that your newly created `remote_user` (as specified in your `ansible.cfg`) has access to your servers.
+    ```bash
+    ansible -i inventories/staging supergood_dokku -m ping
+    ```
+
+### 4. Install Dokku
+
+Install dokku on your Hetzner servers and set up initial global configs.
+
+```bash
+ansible-playbook -i inventories/staging playbooks/install_dokku.yml
+```
+
+### 5. Create apps
+
+Follow the development guide below to configure your own dokku apps. Then run this playbook to create or update app instances on your dokku server.
+
+```bash
+ansible-playbook -i inventories/staging playbooks/configure_apps.yml
+```
+
+Now you'll have a dokku app environment ready for you to deploy containers to.
+
+## Development Guide
+
+### Creating Dokku Apps
+
+An "app" in dokku is not the same as your actual web application that you want to deploy on your dokku server. The dokku app is basically everything that will surround your actual web application: the database services, networking, routing, environment variables.
+
+These steps will put everything in place so that you'll have  a dokku app that you can `push` your actual containers to.
+
+#### 1. Define your apps
+
+The first step is to define the names of the apps you want to build.
+
+The source of truth for this lives in `inventories/{{env}}/group_vars/all/main.yml`.
+
+Example:
+```yaml
+apps:
+  - supergood_site
+  - supergood_reads
+```
+
+`setup_local_app_configs.yml` and `configure_apps.yml` look to this var to determine which apps to configure.
+
+#### 2. Set up local environment
+
+Once you have your apps defined in your inventory vars file, set up your local app config files.
+
+```bash
+ansible-playbook -i inventories/staging playbooks/setup_local_app_configs.yml
+```
+
+This builds a default `inventories/{{env}}/apps/{{ app_name }}.secrets.yml` file and other placeholders for your apps.
+
+#### 3. Set app configs
+
+Your new `{{ app_name }}.secrets.yml` contains some configuration options that will be parsed by `playbooks/roles/dokku_app/tasks/default_config.yml`.
+
+There could be room for adding additional configuration options in the future (see [Tobias Hoge](https://github.com/tbho)'s robust [app config template](https://github.com/dokku/ansible-dokku/issues/148#issuecomment-1330861516)) but what I have in the `default_config.yml` is sufficient for now.
+
+#### 4. Set Environment Variables
+
+Set the environment variables for your app in your newly created `inventories/{{env}}/apps/{{ app_name }}.secrets.yml`. All environment variables should be listed under `config`.
+
+Example:
+```yaml
+config:
+  DEBUG: 0
+  SECRET_KEY: 3dc305fe2263859fc25a0
+```
+
+Any future changes to your environment variables can be re-deployed using the same `configure_app.yml` playbook:
+```bash
+ansible-playbook -i inventories/staging playbooks/configure_apps.yml
+```
+
+#### 5. Make additional configuration steps, as needed
+
+If your dokku app requires additional build steps beyond the tasks defined in `default_config.yml`, you can define those on a per-app basis within `playbooks/apps/{{ app_name }}/tasks/extended_config.yml`. Those tasks can be run by the `configure_apps.yml` playbook.
+
+With this in place, there should be no need for making any adhoc `dokku` commands directly on the server.
+
+Additional scripts or files used by your app's `extended_config.yml` should live in the `playbooks/apps/{{ app_name }}/` directory.
+
+#### 6. Apply changes
+
+You can apply any of those changes to your dokku app with:
+
+```bash
+ansible-playbook -i inventories/staging playbooks/configure_apps.yml --tags app=your_app_name
+```
+
+Note the use of `--tags` to target only one app, rather than every dokku app living on the staging server.
+
+
+### ssh into servers
+
+Any dokku configuration changes should be committed in code (probably in `roles/dokku_app/tasks/default_config.yml` or `roles/dokku_initial_setup/tasks/main.yml` or `extended_config.yml`).
+
+But there are still some situations when you might need to manually inspect or restart a service.
+
+You can ssh into your dokku host server using this utility:
+```bash
+python ssh.py staging
+```
+
+## Areas for Improvement
+
+This project has a lot of good practices going for it, but it was also designed with a sole user in mind.
+
+To make this project structure work for multiple users I would recommend making these changes:
+
+### Use ansible-vault for secrets.yml management
+
+Right now, secrets live only on the localhost machine in gitignored files. A more resilient and collaborative approach would be to save them in ansible-vault encrypted files that could be shared with other developers on a private github repo.
+
+### Add ACL (Access Control Lists) for dokku apps
+
+When you have multiple users and multiple apps, you will want to restrict who has permission to do what on each app.
+
+This sample project has an approach that might be useful: https://github.com/ltalirz/ansible-playbook-dokku/tree/master. 
+
+## Thanks
+
+These sources were immensely helpful to my understanding of dokku and ansible:
+
+- [Ansible Up and Running 3rd. Edition](http://www.ansiblebook.com/) was immensely helpful for teaching me the basics of how anisble works.
+- [Márton Salomváry](https://salomvary.com/about)'s blog post on installing [dokku with ansible](https://salomvary.com/setting-up-dokku) gave me the foundation for building this project.
+- Justin Ellingwood's article on using [multiple inventories for deployment environments](https://www.digitalocean.com/community/tutorials/how-to-manage-multistage-environments-with-ansible#ansible-recommended-strategy-using-groups-and-multiple-inventories) helped make this concept finally click for me.

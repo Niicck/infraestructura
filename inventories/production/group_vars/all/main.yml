@@ -1,2 +1,6 @@
 ---
 env: production
+
+apps:
+  - supergood_site
+  - supergood_reads

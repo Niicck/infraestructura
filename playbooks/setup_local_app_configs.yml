@@ -1,0 +1,39 @@
+---
+- name: Setup local app configs and secrets
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    app_env_secrets_dir: "{{ playbook_dir }}/../inventories/{{ env }}/apps"
+  tasks:
+    - name: Make app env secrets directory
+      file:
+        path: "{{ app_env_secrets_dir }}"
+        state: directory
+
+    - name: "Make app secrets.yml"
+      template:
+        src: templates/app.secrets.yml.example
+        dest: "{{ app_env_secrets_dir }}/{{ app_name }}.secrets.yml"
+        force: no
+      loop_control:
+        loop_var: app_name
+      loop: "{{ apps }}"
+
+    - name: Make app config directory
+      file:
+        path: "apps/{{ app_name }}/tasks"
+        state: directory
+        recurse: yes
+      loop_control:
+        loop_var: app_name
+      loop: "{{ apps }}"
+
+    - name: Make placeholder extended_config.yml
+      template:
+        src: templates/extended_config.yml
+        dest: "apps/{{ app_name }}/tasks/extended_config.yml"
+        force: no
+      loop_control:
+        loop_var: app_name
+      loop: "{{ apps }}"

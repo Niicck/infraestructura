@@ -9,6 +9,7 @@ hetzner_image: ubuntu-22.04
 hetzner_location: ash
 
 # Enable both types of IP addresses
+# IPv4 is an additional charge, but is required for cloudflare and other networking integrations.
 hetzner_enable_ipv4: true
 hetzner_enable_ipv6: true
 

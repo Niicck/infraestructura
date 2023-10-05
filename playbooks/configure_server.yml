@@ -1,6 +1,6 @@
 ---
-- name: Configure supergood ubuntu servers
-  hosts: supergood
+- name: Configure dokku host server
+  hosts: supergood_dokku
   gather_facts: false
   vars:
     created_username: nick
@@ -20,4 +20,4 @@
       remote_user: "{{ remote_user | default('nick') }}"
       become: true
       import_role:
-        name: configure_ubuntu
+        name: ubuntu_initial_setup

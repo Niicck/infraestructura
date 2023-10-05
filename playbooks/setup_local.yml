@@ -1,0 +1,28 @@
+---
+- name: Setup local .env and var files
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    inventories_dir: "{{ playbook_dir }}/../inventories"
+  tasks:
+    - name: Make .env
+      template:
+        src: .env.example
+        dest: "{{ playbook_dir }}/../.env"
+        force: no
+
+    - name: Gather all env inventories
+      find:
+        paths: "{{ inventories_dir }}"
+        file_type: directory
+      register: inventories
+    
+    - name: Create symbolic link from shared_vars.yml to each env inventory
+      file:
+        src: "{{ inventories_dir }}/shared_vars.yml"
+        dest: "{{ item.path }}/group_vars/all/shared_vars.yml"
+        state: link
+      loop: "{{ inventories.files }}"
+      loop_control:
+        label: "{{ item.path }}"

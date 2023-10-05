@@ -1,0 +1,10 @@
+- name: Set global dokku configuration options
+  dokku_config:
+    app: '--global'
+    config:
+      # Contact email for Let's Encrypt SSL certificates
+      DOKKU_LETSENCRYPT_EMAIL: "{{ letsencrypt_email }}"
+
+- name: Add letsencrypt autorenewal cron job
+  shell:
+    cmd: "dokku letsencrypt:cron-job --add"

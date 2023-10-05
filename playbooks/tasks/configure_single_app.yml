@@ -1,0 +1,13 @@
+---
+- name: Import app secrets
+  include_vars:
+    file: "{{ playbook_dir }}/../inventory/{{ env }}/apps/{{ app_name }}.secrets.yml"
+  tags: "app={{ app_name }}"
+
+- name: Run initial app configuration
+  import_tasks: configure_dokku/tasks/app.yml
+  tags: "app={{ app_name }}"
+
+- name: Run any additional app configurations
+  import_tasks: "apps/{{ app_name }}/tasks/extended_config.yml"
+  tags: "app={{ app_name }}"
