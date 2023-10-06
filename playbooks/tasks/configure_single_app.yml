@@ -5,7 +5,8 @@
   tags: "app={{ app_name }}"
 
 - name: Run initial app configuration
-  import_tasks: configure_dokku/tasks/app.yml
+  import_role:
+    name: dokku_app
   tags: "app={{ app_name }}"
 
 - name: Run any additional app configurations

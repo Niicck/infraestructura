@@ -17,7 +17,7 @@
         paths: "{{ inventories_dir }}"
         file_type: directory
       register: inventories
-    
+
     - name: Create symbolic link from shared_vars.yml to each env inventory
       file:
         src: "{{ inventories_dir }}/shared_vars.yml"

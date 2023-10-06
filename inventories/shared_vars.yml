@@ -1,4 +1,3 @@
----
 # These vars are shared among all (non-localhost) groups in all env inventories.
 
 dokku_hostname_base: supergood.site
@@ -6,4 +5,4 @@ dokku_hostname_base: supergood.site
 dokku_users:
   - name: Nick
     username: nick
-    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDijfJy7oqIR3Vhy0oOjZAIpfxDocYu0bn2GX0lmJd3z958dKMv/tdF82+uqf5l5y0lsyRlW5qHVdlRIKeuTHKWvDQexZqqaoOQ86Zdr3lzM6d39aPh0iMkWIQ6unydW7OtipQMViJlurHgjqa4B3elm0avPG9H/3PC9Paxsw1gASfDxVARbBBstUKK2yh46Uw5U1bGPXWVTN/IFrBLyCT7kvrcZhwxS3sKckqPEFHObFXW6AHLsdkw6nCNxN/2fyrbi6qabkf4qs5OJzWQ4PCIVsVJ/++S5sRWBoZs+LbqbsW/MUQ0BRX7tid4ycZjOwZSKhlsdcFjJpdn5+jhXIfy63OXA8xJgR7UWZtDzNbzQ0q8WwKUULeFBBYHmzLRjXMKbEkbviyNSWaWo6dRlXfzn81Vp9z92fJelqjH6niBtz9hj7IVPHp8dsL4254GCPqhUCplmBQl+1b7H/0rpY094bGFB4ngdgPtGkcIRPEKsklYJFAbhu559XJweCq8pU0"
+    ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

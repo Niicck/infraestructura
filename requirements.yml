@@ -1,4 +1,3 @@
----
 roles:
   - name: dokku_bot.ansible_dokku
     version: v2022.10.17
@@ -12,4 +11,3 @@ collections:
     version: 7.4.0
   - name: ansible.posix
     verions: 1.5.4
-...

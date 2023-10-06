@@ -25,4 +25,3 @@
 - name: Save server_address
   set_fact:
     server_address: "{{ hetzner_server_result.hcloud_server.ipv4_address }}"
-...

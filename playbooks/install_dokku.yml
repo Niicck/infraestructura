@@ -3,9 +3,13 @@
   hosts: supergood_dokku
   vars:
     dokku_packages_state: latest
-    docker_users:
-      - dokku
-      - nick
+
+    # dokku_hostname = dokku.{{dokku_hostname_base}} if production
+    # dokku_hostname = dokku.{{env}}.{{dokku_hostname_base}} if non-production
+    dokku_hostname: "dokku{{ (env == 'production') | ternary('', '.' + env) }}.{{ dokku_hostname_base }}"
+
+    dokku_key_file: "/root/.ssh/authorized_keys"
+
     dokku_plugins:
       - name: letsencrypt
         url: https://github.com/dokku/dokku-letsencrypt
@@ -13,20 +17,15 @@
         url: https://github.com/dokku/dokku-postgres.git
       - name: acl
         url: https://github.com/dokku-community/dokku-acl
+
     letsencrypt_email: "{{ lookup('env', 'PRIMARY_EMAIL') }}"
 
   tasks:
-    # dokku.dokku_hostname_base if production
-    # dokku.env.dokku_hostname_base if non-production
-    - name: Set dokku_hostname
-      set_fact:
-        dokku_hostname: "dokku{{ (env == "production") | ternary('', '.' + env) }}.{{ dokku_hostname_base }}"
-
     - name: Install dokku
       become: true
-      include_role:
+      import_role:
         name: dokku_bot.ansible_dokku
 
     - name: Set global dokku configs
-      include_role:
+      import_role:
         name: dokku_initial_setup

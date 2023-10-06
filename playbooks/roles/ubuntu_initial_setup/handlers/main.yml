@@ -3,3 +3,7 @@
   service:
     name: sshd
     state: reloaded
+
+- name: Reboot Server
+  reboot:
+    post_reboot_delay: 0

@@ -1,7 +1,5 @@
 ---
-# Make changes to sshd_config
-
-- name: Disable password authentication for root
+- name: Disable root login
   lineinfile:
     path: /etc/ssh/sshd_config
     state: present
@@ -15,7 +13,7 @@
     regexp: '^#?PasswordAuthentication'
     line: 'PasswordAuthentication no'
 
-- name: Change Log level
+- name: Set Log level
   lineinfile:
     path: /etc/ssh/sshd_config
     state: present

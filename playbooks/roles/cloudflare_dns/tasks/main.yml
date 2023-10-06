@@ -10,7 +10,7 @@
 # our DNS record should be for "staging.example.com".
 - name: Set record for {{ zone }}
   set_fact:
-    record: "{{ (env == "production") | ternary(zone, env) }}"
+    record: "{{ (env == 'production') | ternary(zone, env) }}"
 
 - name: Create A record for {{ zone }}
   community.general.cloudflare_dns:

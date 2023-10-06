@@ -16,8 +16,8 @@ The playbooks themselves were specifically designed around the needs of deployin
     - [Cloudflare](#cloudflare)
 - [Run](#run)
   - [1. Source your .env variables in your shell](#1-source-your-env-variables-in-your-shell)
-  - [2. Provision your Hetzner servers](#2-provision-your-hetzner-servers)
-  - [3. Configure your Hetzner servers](#3-configure-your-hetzner-servers)
+  - [2. Provision your Hetzner server](#2-provision-your-hetzner-server)
+  - [3. Configure your Hetzner server](#3-configure-your-hetzner-server)
   - [4. Install Dokku](#4-install-dokku)
   - [5. Create apps](#5-create-apps)
 - [Development Guide](#development-guide)
@@ -104,7 +104,9 @@ Do this after every time you change them.
 set -a; source .env; set +a
 ```
 
-### 2. Provision your Hetzner servers
+### 2. Provision your Hetzner server
+
+Build the server that will host your dokku instance.
 
 ```bash
 ansible-playbook playbooks/provision_server.yml -e "env=staging"
@@ -119,12 +121,12 @@ ansible-playbook playbooks/provision_server.yml -e "env=staging"
     ansible-inventory -i inventories/staging --list
     ```
 
-### 3. Configure your Hetzner servers
+### 3. Configure your Hetzner server
 
 This installs core packages, creates a sudoless remote_user, and does some basic security hardening.
 
 ```bash
-ansible-playbook -i inventories/staging playbooks/configure_servers.yml
+ansible-playbook -i inventories/staging playbooks/configure_server.yml
 ```
 
 **Notes**
@@ -253,12 +255,13 @@ Right now, secrets live only on the localhost machine in gitignored files. A mor
 
 When you have multiple users and multiple apps, you will want to restrict who has permission to do what on each app.
 
-This sample project has an approach that might be useful: https://github.com/ltalirz/ansible-playbook-dokku/tree/master. 
+This sample project has an approach that might be useful: https://github.com/ltalirz/ansible-playbook-dokku/tree/master.
 
 ## Thanks
 
 These sources were immensely helpful to my understanding of dokku and ansible:
 
 - [Ansible Up and Running 3rd. Edition](http://www.ansiblebook.com/) was immensely helpful for teaching me the basics of how anisble works.
+- Tom Dyson's [short guide](https://gist.github.com/tomdyson/025be30855262287ae048bf4371d26f8) is the absolute easiest MVP for how to deploy dokku on your own server.
 - [Márton Salomváry](https://salomvary.com/about)'s blog post on installing [dokku with ansible](https://salomvary.com/setting-up-dokku) gave me the foundation for building this project.
 - Justin Ellingwood's article on using [multiple inventories for deployment environments](https://www.digitalocean.com/community/tutorials/how-to-manage-multistage-environments-with-ansible#ansible-recommended-strategy-using-groups-and-multiple-inventories) helped make this concept finally click for me.

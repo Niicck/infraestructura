@@ -11,14 +11,10 @@
     hetzner_server_name_base: supergood-dokku
     # The project_label value is used by the label_selector in hcloud.yml dynamic inventory.
     hetzner_project_label: supergood-dokku
-    # localhost_vars_dir: "{{ playbook_dir }}/../inventories/{{ env }}/host_vars/localhost"
-  # vars_files:
-  #   - "{{ localhost_vars_dir }}/hetzner_server_overrides.yml"
-  #   - "{{ localhost_vars_dir }}/apps.yml"
 
   tasks:
     - name: Provision Hetzner server
-      include_role:
+      import_role:
         name: hetzner_server
 
     - name: Create DNS records for domains

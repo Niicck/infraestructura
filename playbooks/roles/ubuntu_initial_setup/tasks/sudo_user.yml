@@ -1,0 +1,19 @@
+---
+- name: "Create '{{ new_sudo_user }}' user with sudo privileges"
+  user:
+    name: "{{ new_sudo_user }}"
+    state: present
+    groups: sudo
+    append: true
+    create_home: true
+
+- name: "Set authorized key for '{{ new_sudo_user }}'"
+  ansible.posix.authorized_key:
+    user: "{{ new_sudo_user }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: "Set default shell to bash for '{{ new_sudo_user }}'"
+  user:
+    name: "{{ new_sudo_user }}"
+    shell: /usr/bin/bash

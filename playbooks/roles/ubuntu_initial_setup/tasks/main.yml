@@ -1,14 +1,10 @@
 ---
 - name: Perform full patching
-  package:
+  apt:
     name: '*'
     state: latest
-
-- name: Install aptitude
-  apt:
-    name: aptitude
-    state: latest
     update_cache: true
+    cache_valid_time: 3600
 
 - name: Setup passwordless sudo
   lineinfile:
@@ -18,39 +14,12 @@
     line: '%sudo ALL=(ALL) NOPASSWD: ALL'
     validate: '/usr/sbin/visudo -cf %s'
 
-- name: Create a new regular user with sudo privileges
-  user:
-    name: "{{ created_username }}"
-    state: present
-    groups: sudo
-    append: true
-    create_home: true
-
-- name: Change shell to bash for new user
-  user:
-    name: "{{ created_username }}"
-    shell: /usr/bin/bash
-
-- name: Set authorized key for remote user
-  ansible.posix.authorized_key:
-    user: "{{ created_username }}"
-    state: present
-    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+- name: Create new sudo user
+  import_tasks: sudo_user.yml
 
 - name: Make changes to sshd_config
   import_tasks: sshd.yml
   notify: Restart SSH
-
-- name: Update apt and install required system packages
-  apt:
-    update_cache: true
-    state: latest
-    pkg:
-      - curl
-      - vim
-      - nano
-      - ufw
-      - fail2ban
 
 - name: UFW - Allow SSH connections
   community.general.ufw:
@@ -61,3 +30,21 @@
   community.general.ufw:
     state: enabled
     default: deny
+
+- name: Update apt and install required system packages
+  apt:
+    state: latest
+    pkg:
+      - curl
+      - vim
+      - nano
+      - ufw
+      - fail2ban
+
+- name: Check reboot status
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+    get_checksum: false
+  register: reboot
+  changed_when: reboot.stat.exists
+  notify: Reboot Server

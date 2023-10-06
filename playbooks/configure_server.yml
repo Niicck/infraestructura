@@ -1,23 +1,37 @@
 ---
+# This first time this playbook is run, it will use the "root" user to:
+#   - create a new_remote_user with sudoer privileges
+#   - disable ssh access for the "root" user
+#
+# After that, every playbook's remote_user must be the new_remote_user, since "root" has
+# been disabled. 
+# 
+# The ansible.cfg default.remote_user should be set to the value of new_remote_user.
+
 - name: Configure dokku host server
   hosts: supergood_dokku
   gather_facts: false
   vars:
-    created_username: nick
+    new_remote_user: nick
   tasks:
-    - name: Attempt SSH with created_username
-      command: 'ssh -o PasswordAuthentication=no -o ConnectTimeout=5 {{ created_username }}@{{ ipv4 }} exit'
-      register: ssh_check
-      ignore_errors: true
-      delegate_to: localhost
-
-    - name: Set remote_user to "root" if created_username hasn't been created yet
-      set_fact:
-        remote_user: root
-      when: ssh_check is failed
+    - block:
+        - name: Test SSH with {{ new_remote_user }}
+          delegate_to: localhost
+          command: 'ssh -o PasswordAuthentication=no -o ConnectTimeout=5 {{ new_remote_user }}@{{ ipv4 }} exit'
+          register: ssh_check
+      rescue:
+        - name: "Set ansible_ssh_user to 'root' if '{{ new_remote_user }}' hasn't been created yet"
+          set_fact:
+            ansible_ssh_user: root
+          when: "'Permission denied (publickey,password)' in ssh_check.stderr"
+        - name: "Handle unrelated errors with {{ new_remote_user }} SSH attempt"
+          fail:
+            msg: '"Test SSH with {{ new_remote_user }}" failed for the wrong reason.'
+          when: "'Permission denied (publickey,password)' not in ssh_check.stderr"
 
     - name: Run ubuntu configurations
-      remote_user: "{{ remote_user | default('nick') }}"
       become: true
       import_role:
         name: ubuntu_initial_setup
+      vars:
+        new_sudo_user: "{{ new_remote_user }}"
