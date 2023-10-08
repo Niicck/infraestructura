@@ -20,8 +20,8 @@
 
     - name: Create symbolic link from shared_vars.yml to each env inventory
       file:
-        src: "{{ inventories_dir }}/shared_vars.yml"
-        dest: "{{ item.path }}/group_vars/all/shared_vars.yml"
+        src: "{{ inventories_dir }}/000_shared_vars.yml"
+        dest: "{{ item.path }}/group_vars/all/000_shared_vars.yml"
         state: link
       loop: "{{ inventories.files }}"
       loop_control:

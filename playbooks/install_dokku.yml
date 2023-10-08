@@ -4,9 +4,9 @@
   vars:
     dokku_packages_state: latest
 
-    # dokku_hostname = dokku.{{dokku_hostname_base}} if production
-    # dokku_hostname = dokku.{{env}}.{{dokku_hostname_base}} if non-production
-    dokku_hostname: "dokku{{ (env == 'production') | ternary('', '.' + env) }}.{{ dokku_hostname_base }}"
+    # dokku_hostname = {{dokku_hostname_base}} if production
+    # dokku_hostname = {{env}}.{{dokku_hostname_base}} if non-production
+    dokku_hostname: "{{ (env == 'production') | ternary('', env + '.') }}{{ dokku_hostname_base }}"
 
     dokku_key_file: "/root/.ssh/authorized_keys"
 

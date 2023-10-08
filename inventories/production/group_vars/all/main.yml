@@ -1,5 +1,7 @@
 env: production
 
+dokku_hostname: supergood.site
+
 apps:
   - supergood-site
   - supergood-reads

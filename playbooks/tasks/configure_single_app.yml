@@ -3,6 +3,7 @@
   delegate_to: localhost
   include_vars:
     file: "{{ playbook_dir }}/../inventories/{{ env }}/apps/{{ app_name }}.secrets.yml"
+    name: app_secrets
   tags: "app={{ app_name }}"
 
 - name: Run initial app configuration

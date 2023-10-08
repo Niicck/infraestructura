@@ -1,7 +1,7 @@
 ---
 - name: Set global letsencrypt email
   shell:
-    cmd: dokku letsencrypt:set --global email {{ letsencrypt_email }}"
+    cmd: dokku letsencrypt:set --global email {{ letsencrypt_email }}
 
 - name: Add letsencrypt autorenewal cron job
   shell:
