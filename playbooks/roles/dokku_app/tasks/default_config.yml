@@ -18,8 +18,8 @@
   when: postgres is defined
 
 - name: Enable letsencrypt
-  shell:
-    cmd: "dokku letsencrypt:enable {{ app_name }}"
+  dokku_letsencrypt:
+    app: "{{ app_name }}"
   when: letsencrypt is true
 
 - name: Add environemnt variables

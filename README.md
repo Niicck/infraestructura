@@ -173,8 +173,8 @@ The source of truth for this lives in `inventories/{{env}}/group_vars/all/main.y
 Example:
 ```yaml
 apps:
-  - supergood_site
-  - supergood_reads
+  - supergood-site
+  - supergood-reads
 ```
 
 `setup_local_app_configs.yml` and `configure_apps.yml` look to this var to determine which apps to configure.

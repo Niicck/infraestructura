@@ -1,0 +1,6 @@
+---
+- name: "Configure apps"
+  include_tasks: configure_single_app.yml
+  loop_control:
+    loop_var: app_name
+  loop: "{{ apps }}"

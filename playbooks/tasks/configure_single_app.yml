@@ -1,7 +1,8 @@
 ---
 - name: Import app secrets
+  delegate_to: localhost
   include_vars:
-    file: "{{ playbook_dir }}/../inventory/{{ env }}/apps/{{ app_name }}.secrets.yml"
+    file: "{{ playbook_dir }}/../inventories/{{ env }}/apps/{{ app_name }}.secrets.yml"
   tags: "app={{ app_name }}"
 
 - name: Run initial app configuration
