@@ -18,7 +18,12 @@
       - name: acl
         url: https://github.com/dokku-community/dokku-acl
 
-    letsencrypt_email: "{{ lookup('env', 'PRIMARY_EMAIL') }}"
+    letsencrypt_configs:
+      email: "{{ lookup('env', 'PRIMARY_EMAIL') }}"
+      dns-provider: "hetzner"
+      dns-provider-HETZNER_API_KEY: "{{ lookup('env', 'LETSENCRYPT_HETZNER_DNS_TOKEN') }}"
+      dns-provider-HETZNER_PROPAGATION_TIMEOUT: 300 # seconds
+      dns-provider-HETZNER_POLLING_INTERVAL: 5
 
   tasks:
     - name: Install dokku

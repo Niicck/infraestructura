@@ -1,7 +1,9 @@
 ---
-- name: Set global letsencrypt email
+- name: Set global letsencrypt configs
   shell:
-    cmd: dokku letsencrypt:set --global email {{ letsencrypt_email }}
+    cmd: dokku letsencrypt:set --global {{ item.key }} {{ item.value }}
+  loop: "{{ letsencrypt_configs | dict2items }}"
+  no_log: true
 
 - name: Add letsencrypt autorenewal cron job
   shell:
