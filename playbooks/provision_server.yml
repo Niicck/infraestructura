@@ -7,8 +7,10 @@
     domains:
       - supergood.site
       - nickivons.com
+
     hetzner_ssh_key_name: nick-macbook
     hetzner_server_name_base: supergood-dokku
+    
     # The project_label value is used by the label_selector in hcloud.yml dynamic inventory.
     hetzner_project_label: supergood-dokku
 
@@ -16,10 +18,3 @@
     - name: Provision Hetzner server
       import_role:
         name: hetzner_server
-
-    - name: Create DNS records for domains
-      include_role:
-        name: cloudflare_dns
-      loop: "{{ domains }}"
-      loop_control:
-        loop_var: domain

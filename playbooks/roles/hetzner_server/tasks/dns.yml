@@ -1,0 +1,55 @@
+---
+- name: Set zone for {{ domain }}
+  set_fact:
+    zone: "{{ domain }}"
+
+# record = zone if production
+# record = env if non-production
+# Non-production sites should be routed to a subdomain.
+# Example: if the domain is "example.com" and the env is "staging" then
+# our DNS record should be for "staging.example.com".
+- name: Set record for {{ zone }}
+  set_fact:
+    record: "{{ (env == 'production') | ternary('', env + '.') }}{{ zone }}"
+
+- name: Check if domain zone exists
+  community.dns.hetzner_dns_zone_info:
+    zone: "{{ domain }}"
+  register: zone_info_result
+  ignore_errors: yes
+
+- name: Create DNS Zone for domain
+  when: zone_info_result.failed is true and zone_info_result.msg == "Zone not found"
+  uri:
+    method: POST
+    url: "https://dns.hetzner.com/api/v1/zones"
+    body_format: "json"
+    body:
+      "name": "{{ zone }}"
+    headers:
+      "Content-Type": application/json'
+      "Auth-API-Token": "{{ lookup('env', 'HETZNER_DNS_TOKEN') }}"
+
+- name: Create A record for {{ record }}
+  community.dns.hetzner_dns_record:
+    zone: "{{ zone }}"
+    record: "{{ record }}"
+    type: A
+    value: "{{ server_address }}"
+    state: present
+
+- name: Create A record for www.{{ record }}
+  community.dns.hetzner_dns_record:
+    zone: "{{ zone }}"
+    record: "www.{{ record }}"
+    type: A
+    value: "{{ server_address }}"
+    state: present
+
+- name: Create A record for *.{{ record }} subdomains
+  community.dns.hetzner_dns_record:
+    zone: "{{ zone }}"
+    record: "*.{{ record }}"
+    type: A
+    value: "{{ server_address }}"
+    state: present

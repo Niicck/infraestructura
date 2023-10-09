@@ -3,10 +3,11 @@
   dokku_app:
     app: "{{ app_name }}"
 
-- name: Add domains
+- name: Set domains
   dokku_domains:
     app: "{{ app_name }}"
     domains: "{{ app_secrets.app_domains | default([]) }}"
+    state: set
 
 - name: Create postgres service
   environment: "{{ app_configs.postgres.environment | default({}) }}"

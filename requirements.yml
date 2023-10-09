@@ -9,7 +9,7 @@ collections:
   - name: hetzner.hcloud
     version: 2.1.1
   - name: community.dns
-    version: 2.6.1
+    version: 2.6.2
   - name: community.general
     version: 7.4.0
   - name: ansible.posix

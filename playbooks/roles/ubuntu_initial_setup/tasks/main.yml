@@ -26,6 +26,12 @@
     rule: allow
     name: OpenSSH
 
+- name: UFW - Allow Http traffic
+  community.general.ufw:
+    rule: allow
+    port: '80,443'
+    proto: tcp
+
 - name: UFW - Deny all other traffic by default
   community.general.ufw:
     state: enabled
