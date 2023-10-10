@@ -1,0 +1,58 @@
+---
+- name: Set zone for {{ domain }}
+  set_fact:
+    zone: "{{ domain }}"
+
+# record = zone if production
+# record = env if non-production
+# Non-production sites should be routed to a subdomain.
+# Example: if the domain is "example.com" and the env is "staging" then
+# our DNS record should be for "staging.example.com".
+- name: Set record for {{ zone }}
+  set_fact:
+    record: "{{ (env == 'production') | ternary(zone, env) }}"
+
+- name: Create A record for {{ zone }}
+  community.general.cloudflare_dns:
+    zone: "{{ zone }}"
+    record: "{{ record }}"
+    type: A
+    value: "{{ server_address }}"
+    proxied: true # required for dokku-letsencrypt
+    state: present
+
+- name: Create A record for {{ zone }} subdomains
+  community.general.cloudflare_dns:
+    zone: "{{ zone }}"
+    record: "*.{{ record }}"
+    type: A
+    value: '{{ server_address }}'
+    proxied: true # required for dokku-letsencrypt
+    state: present
+
+- name: Fetch Cloudflare Zone IDs for {{ zone }}
+  uri:
+    url: "https://api.cloudflare.com/client/v4/zones?name={{ zone }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ lookup('env', 'CLOUDFLARE_TOKEN') }}"
+      Content-Type: "application/json"
+    return_content: yes
+  register: zone_info
+
+- name: Set Cloudflare Zone ID variable for {{ zone }}
+  set_fact:
+    cloudflare_zone_id: "{{ zone_info.json.result[0].id }}"
+
+# Required for dokku-letsencrypt
+# https://github.com/dokku/dokku-letsencrypt#usage
+- name: Set SSL encryption mode to Full for {{ zone }}
+  uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone_id }}/settings/ssl"
+    method: PATCH
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ lookup('env', 'CLOUDFLARE_TOKEN') }}"
+      Content-Type: "application/json"
+    body: '{"value": "full"}'
+    status_code: 200

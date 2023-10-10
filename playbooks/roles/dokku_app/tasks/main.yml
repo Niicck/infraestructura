@@ -1,3 +1,11 @@
 ---
-- name: "Run default apps configurations"
+- name: Run default apps configurations
   import_tasks: default_config.yml
+
+- name: Build Placeholder App
+  import_tasks: build_placeholder_app.yml
+  tags: build_placeholder_app
+
+- name: Enable letsencrypt
+  import_tasks: letsencrypt.yml
+  when: app_secrets.letsencrypt | bool

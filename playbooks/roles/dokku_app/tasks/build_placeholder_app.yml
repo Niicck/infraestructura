@@ -1,0 +1,20 @@
+---
+# Deploy a placeholder app until the real app gets deployed.
+#
+# letsencrypt can only be enabled for an app if its deployed and running.
+# We deploy this placeholder just for the sake of having a deployed app
+# that can receive letsencrypt SSL certs.
+
+- name: Check if {{ app_name }} is deployed
+  command: "dokku apps:report {{ app_name }} --app-deploy-source"
+  register: app_deploy_source
+
+- set_fact:
+    is_app_deployed: "{{ app_deploy_source.stdout|trim|length > 0 }}"
+
+- name: Build placeholder app
+  dokku_clone:
+    app: "{{ app_name }}"
+    repository: "{{ placeholder_app_repo }}"
+    version: "{{ placeholder_app_version }}"
+  when: not is_app_deployed | bool

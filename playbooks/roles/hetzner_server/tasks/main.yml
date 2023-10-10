@@ -26,8 +26,8 @@
   set_fact:
     server_address: "{{ hetzner_server_result.hcloud_server.ipv4_address }}"
 
-- name: Create DNS records for domains
-  include_tasks: dns.yml
-  loop: "{{ domains }}"
-  loop_control:
-    loop_var: domain
+# - name: Create DNS records for domains
+#   include_tasks: dns.yml
+#   loop: "{{ domains }}"
+#   loop_control:
+#     loop_var: domain

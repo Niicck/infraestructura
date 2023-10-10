@@ -80,19 +80,21 @@ Take these steps to enable the `provision_server.yml` playbook to automatically 
 
 #### Cloudflare
 
-You have a domain, you have a server. Now you have to connect them.
-
 This project uses Cloudflare as the DNS hosting service for mapping your domains ([example.com)](#) to the IP addresses (93.184.216.34) of your Hetzner servers.
 
 Take these steps to enable the `provision_server.yml` playbook to automatically create your Cloudflare DNS records.
 
 1. Create a free Cloudflare account
-2. Add your domain as a "website".
+2. Add your domain as a "website" (a.k.a "zone").
 3. Follow their instructions. Within Namecheap, you'll have to add Cloudflare's nameservers as a Custom DNS within your domain settings.
-     - Note: They claim it can take up to 48 hours for the changes to register. It took about 2 hours for me.
-4. Back in Cloudflare, create an API token that has permission to edit your (website) zone's DNS and Zone Settings.
+      - Note: They claim it can take up to 48 hours for the changes to register. It took about 2 hours for me. You can manually check that your domain has been registered with:
+        ```bash
+        nslookup -type=TXT your-domain
+        ```
+4. Back in Cloudflare, create an API token that has permission to edit your (website) zone's "DNS" and "Zone Settings". Set this as `CLOUDFLARE_TOKEN` in `.env`.
   ![Edit "DNS", Edit "Zone Settings"](<docs/Create Cloudflare Token.png>)
-6. Add that API token as `CLOUDFLARE_TOKEN` in `.env`.
+5. Create another API token with permission to read "Zone" and edit "DNS". Set this as `LETSENCRYPT_CLOUDFLARE_DNS_API_TOKEN` in `.env`. This token will be stored on your remote dokku server to be used later by letsencrypt.
+  ![Read "Zone", Edit "DNS"](docs/LETSENCRYPT_CLOUDFLARE_DNS_API_TOKEN.png)
 
 ## Run
 
@@ -106,24 +108,24 @@ set -a; source .env; set +a
 
 ### 2. Provision your Hetzner server
 
-Build the server that will host your dokku instance.
+Build the server that will host your dokku instance, along with DNS records.
 
 ```bash
-ansible-playbook playbooks/provision_server.yml -e "env=staging"
+ansible-playbook -i inventories/staging playbooks/provision_server.yml
 ```
 
 **Notes**
 
-  - `env=staging` builds your staging environment.
-  - `env=production` builds your production environment.
-  - This project uses a dynamic inventory to gather hosts. Rather than needing to manually add your provisioned IP addresses to your `hosts.ini` file, the project uses the Hetzner API to automatically fetch them. Test it out with:
+  - `-i inventories/staging` runs playbooks on your staging server.
+  - `-i inventories/production` runs playbooks on your production server.
+  - Test that your dokku server has been provisioned with:
     ```bash
     ansible-inventory -i inventories/staging --list
     ```
 
 ### 3. Configure your Hetzner server
 
-This installs core packages, creates a sudoless remote_user, and does some basic security hardening.
+This installs core packages, creates a sudoless remote_user, and does basic security hardening.
 
 ```bash
 ansible-playbook -i inventories/staging playbooks/configure_server.yml
@@ -131,9 +133,7 @@ ansible-playbook -i inventories/staging playbooks/configure_server.yml
 
 **Notes**
 
-  - `-i inventories/staging` runs playbooks on your staging server.
-  - `-i inventories/production` runs playbooks on your production server.
-  - Test that your newly created `remote_user` (as specified in your `ansible.cfg`) has access to your servers.
+  - Test that your playbook's `new_remote_user` (which should match the remote_user in `ansible.cfg`) has access to your servers:
     ```bash
     ansible -i inventories/staging supergood_dokku -m ping
     ```
@@ -181,41 +181,40 @@ apps:
 
 #### 2. Set up local environment
 
-Once you have your apps defined in your inventory vars file, set up your local app config files.
+Once you have your `apps` defined in `inventories/{{env}}/group_vars/all/main.yml`, running `setup_local_app_configs.yml` will automatically build all the local app config files they'll need.
 
 ```bash
 ansible-playbook -i inventories/staging playbooks/setup_local_app_configs.yml
 ```
 
-This builds a default `inventories/{{env}}/apps/{{ app_name }}.secrets.yml` file and other placeholders for your apps.
+This builds a default `inventories/{{env}}/apps/{{ app_name }}.secrets.yml` file and other placeholder configs for your apps.
 
 #### 3. Set app configs
 
-Your new `{{ app_name }}.secrets.yml` contains some configuration options that will be parsed by `playbooks/roles/dokku_app/tasks/default_config.yml`.
-
-There could be room for adding additional configuration options in the future (see [Tobias Hoge](https://github.com/tbho)'s robust [app config template](https://github.com/dokku/ansible-dokku/issues/148#issuecomment-1330861516)) but what I have in the `default_config.yml` is sufficient for now.
+Your new `{{ app_name }}.secrets.yml` contains some configuration options that will be parsed by `playbooks/roles/dokku_app/tasks/default_config.yml`. Change those values as needed.
 
 #### 4. Set Environment Variables
 
-Set the environment variables for your app in your newly created `inventories/{{env}}/apps/{{ app_name }}.secrets.yml`. All environment variables should be listed under `config`.
+Your app's newly created `inventories/{{env}}/apps/{{ app_name }}.secrets.yml` has a place for setting environment variables. All environment variables should be listed under `config`.
+
+Note: only string values are allowed.
 
 Example:
 ```yaml
 config:
-  DEBUG: 0
-  SECRET_KEY: 3dc305fe2263859fc25a0
+  DEBUG: "0"
+  SECRET_KEY: "3dc305fe2263859fc25a0"
 ```
 
 Any future changes to your environment variables can be re-deployed using the same `configure_app.yml` playbook:
 ```bash
+å
 ansible-playbook -i inventories/staging playbooks/configure_apps.yml
 ```
 
 #### 5. Make additional configuration steps, as needed
 
-If your dokku app requires additional build steps beyond the tasks defined in `default_config.yml`, you can define those on a per-app basis within `playbooks/apps/{{ app_name }}/tasks/extended_config.yml`. Those tasks can be run by the `configure_apps.yml` playbook.
-
-With this in place, there should be no need for making any adhoc `dokku` commands directly on the server.
+If your dokku app requires additional build steps beyond the tasks defined in `default_config.yml`, you can define those on a per-app basis within `playbooks/apps/{{ app_name }}/tasks/extended_config.yml`. Those tasks will be run by the `configure_apps.yml` playbook. This should help reduce the number of adhoc `dokku` commands that you need to manually run on the server to get your apps configured.
 
 Additional scripts or files used by your app's `extended_config.yml` should live in the `playbooks/apps/{{ app_name }}/` directory.
 

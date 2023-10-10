@@ -23,12 +23,7 @@
     service: postgres
   when: app_secrets.postgres is defined
 
-- name: Enable letsencrypt
-  dokku_letsencrypt:
-    app: "{{ app_name }}"
-  when: app_secrets.letsencrypt | bool
-
-- name: Add environemnt variables
+- name: Add environment variables
   dokku_config:
     app: "{{ app_name }}"
     config: "{{ app_secrets.config | default({}) }}"

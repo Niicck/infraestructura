@@ -3,22 +3,21 @@
   hosts: supergood_dokku
   gather_facts: true
   vars:
-    
+    invoked_by_script: false
+    placeholder_app_repo: "https://github.com/Niicck/supergood-placeholder.git"
+    placeholder_app_version: main
   tasks:
+    - name: Ensure that this playbook was invoked by python script
+      assert:
+        that:
+          - invoked_by_script
+        fail_msg: "Don't run this playbook directly. Please run `python configure_apps.py {{env}} ...` instead."
+
     - name: Run role without running any tasks
       # See: https://github.com/dokku/ansible-dokku/pull/137#issuecomment-1280024359
       import_role: 
         name: dokku_bot.ansible_dokku
         tasks_from: init.yml
-      # vars:
-      #   # ansible_dokku uses geerlingguy.ansible-role-docker as a dependency.
-      #   # Dependencies are always run when you import a role.
-      #   # In this case, we just want to import the role, we don't want to run these dependencies.
-      #   # But there isn't a way to prevent that from happening in ansible.
-      #   # However, v6.1.0 and higher of geerlingguy.ansible-role-docker allows us to use
-      #   # these flags to skip some unnecessary installation steps.
-      #   docker_add_repo: false 
-      #   docker_install_compose_plugin: false
 
     - name: "Configure apps"
       include_tasks: tasks/configure_single_app.yml

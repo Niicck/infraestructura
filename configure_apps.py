@@ -39,6 +39,9 @@ def main():
     parser.add_argument('ansible_args', nargs=argparse.REMAINDER, help='Arguments to pass to ansible-playbook')
     args = parser.parse_args()
 
+    # Tell the playbook that it was invoked by this python script
+    invoked_by_script_args = ["--e", "invoked_by_script=true"]
+
     # See: https://github.com/nginxinc/ansible-role-nginx/blob/main/tasks/main.yml
     nginx_skip_tags = ",".join([
         "nginx_validate",
@@ -52,7 +55,7 @@ def main():
 
     # See: https://github.com/geerlingguy/ansible-role-docker
     # Only works on v6.1.0 and higher of geerlingguy.ansible-role-docker.
-    docker_options = [
+    docker_role_args = [
         "--e", "docker_add_repo=false",
         "--e", "docker_install_compose_plugin=false", 
     ]
@@ -68,13 +71,15 @@ def main():
     final_skip_tags = nginx_skip_tags
     if user_skip_tags:
         final_skip_tags = f"{nginx_skip_tags},{user_skip_tags}"
+    skip_tag_args = ['--skip-tags', final_skip_tags]
 
     # Construct the final command
     final_command = (
         ['ansible-playbook', "-i", f"inventories/{args.env}", "playbooks/configure_apps.yml"]
+        + invoked_by_script_args
+        + skip_tag_args
+        + docker_role_args
         + args.ansible_args
-        + ['--skip-tags', final_skip_tags]
-        + docker_options
     )
 
     # Run the command

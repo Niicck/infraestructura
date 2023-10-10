@@ -18,3 +18,10 @@
     - name: Provision Hetzner server
       import_role:
         name: hetzner_server
+
+    - name: Create DNS records for domains
+      include_role:
+        name: cloudflare_dns
+      loop: "{{ domains }}"
+      loop_control:
+        loop_var: domain
