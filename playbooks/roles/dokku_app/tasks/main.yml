@@ -2,10 +2,12 @@
 - name: Run default apps configurations
   import_tasks: default_config.yml
 
-- name: Build Placeholder App
-  import_tasks: build_placeholder_app.yml
-  tags: build_placeholder_app
+# TODO: figure out a better workflow. letsencrypt probably needs its own playbook.
 
-- name: Enable letsencrypt
-  import_tasks: letsencrypt.yml
-  when: app_secrets.letsencrypt | bool
+# - name: Build Placeholder App
+#   import_tasks: build_placeholder_app.yml
+#   tags: build_placeholder_app
+
+# - name: Enable letsencrypt
+#   import_tasks: letsencrypt.yml
+#   when: app_secrets.letsencrypt | bool

@@ -17,6 +17,8 @@
         url: https://github.com/dokku/dokku-postgres.git
       - name: acl
         url: https://github.com/dokku-community/dokku-acl
+      - name: redirect
+        url: https://github.com/dokku/dokku-redirect.git
 
     letsencrypt_configs:
       email: "{{ lookup('env', 'PRIMARY_EMAIL') }}"
