@@ -2,7 +2,7 @@
 
 This repo contains ansible playbooks for automated deployments of dokku servers and apps.
 
-The playbooks themselves were specifically designed around the needs of deploying [supergood.site](supergood.site), but the roles and general setup could be useful to other projects.
+The playbooks themselves were specifically designed around the needs of deploying [supergood.site](https://supergood.site), but the roles and general setup could be useful to other projects.
 
 ## Table of Contents
 
