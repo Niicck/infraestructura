@@ -9,7 +9,7 @@
 # The ansible.cfg default.remote_user should be set to the value of new_remote_user.
 
 - name: Configure dokku host server
-  hosts: supergood_dokku
+  hosts: supergood_cloud
   gather_facts: false
   vars:
     new_remote_user: nick

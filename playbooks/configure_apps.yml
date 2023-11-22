@@ -1,6 +1,6 @@
 ---
 - name: Configure Dokku Apps
-  hosts: supergood_dokku
+  hosts: supergood_cloud
   gather_facts: true
   vars:
     invoked_by_script: false

@@ -137,7 +137,7 @@ ansible-playbook -i inventories/staging playbooks/configure_server.yml
 
   - Test that your playbook's `new_remote_user` (which should match the remote_user in `ansible.cfg`) has access to your servers:
     ```bash
-    ansible -i inventories/staging supergood_dokku -m ping
+    ansible -i inventories/staging supergood_cloud -m ping
     ```
 
 ### 4. Install Dokku

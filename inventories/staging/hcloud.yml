@@ -1,4 +1,4 @@
 ---
 plugin: hetzner.hcloud.hcloud
-label_selector: environment=staging,project=supergood-app-dokku
-group: supergood_dokku
+label_selector: environment=staging,project=supergood-cloud
+group: supergood_cloud

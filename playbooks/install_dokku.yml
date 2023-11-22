@@ -1,12 +1,8 @@
 ---
 - name: Configure Dokku Platform
-  hosts: supergood_dokku
+  hosts: supergood_cloud
   vars:
     dokku_packages_state: latest
-
-    # If production, then dokku_hostname = {{dokku_hostname_base}}
-    # If non-production, dokku_hostname = {{env}}.{{dokku_hostname_base}} 
-    dokku_hostname: "{{ (env == 'production') | ternary('', env + '.') }}{{ dokku_hostname_base }}"
 
     # Instead, set ssh-keys with dokku_users
     dokku_skip_key_file: true
@@ -33,6 +29,12 @@
       import_role:
         name: dokku_bot.ansible_dokku
 
-    - name: Set global dokku configs
-      import_role:
-        name: dokku_initial_setup
+    - name: Set global letsencrypt configs
+      shell:
+        cmd: dokku letsencrypt:set --global {{ item.key }} {{ item.value }}
+      loop: "{{ global_letsencrypt_settings | dict2items }}"
+      no_log: true
+
+    - name: Add letsencrypt autorenewal cron job
+      shell:
+        cmd: "dokku letsencrypt:cron-job --add"

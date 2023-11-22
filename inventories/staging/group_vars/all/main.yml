@@ -1,4 +1,11 @@
 env: staging
 
+dokku_hostname: supergood.icu
+
+dokku_users:
+  - name: Nick
+    username: nick
+    ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
 apps:
   - supergood-reads

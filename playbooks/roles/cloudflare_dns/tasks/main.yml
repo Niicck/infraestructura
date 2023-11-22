@@ -3,14 +3,9 @@
   set_fact:
     zone: "{{ domain }}"
 
-# record = zone if production
-# record = env if non-production
-# Non-production sites should be routed to a subdomain.
-# Example: if the domain is "example.com" and the env is "staging" then
-# our DNS record should be for "staging.example.com".
 - name: Set record for {{ zone }}
   set_fact:
-    record: "{{ (env == 'production') | ternary(zone, env) }}"
+    record: "{{ zone }}"
 
 - name: Create A record for {{ zone }}
   community.general.cloudflare_dns:

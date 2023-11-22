@@ -1,6 +1,11 @@
 env: production
 
-dokku_hostname: supergood.site
+dokku_hostname: supergood.cloud
+
+dokku_users:
+  - name: Nick
+    username: nick
+    ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 apps:
   - supergood-reads

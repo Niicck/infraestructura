@@ -4,14 +4,11 @@
   connection: local
   gather_facts: true
   vars:
-    domains:
-      - supergoodapp.site
-
     hetzner_ssh_key_name: nick-macbook
-    hetzner_server_name_base: supergood-app-dokku
+    hetzner_server_name_base: supergood-cloud
 
     # The project_label value is used by the label_selector in hcloud.yml dynamic inventory.
-    hetzner_project_label: supergood-app-dokku
+    hetzner_project_label: supergood-cloud
 
   tasks:
     - name: Provision Hetzner server
@@ -21,6 +18,5 @@
     - name: Create DNS records for domains
       include_role:
         name: cloudflare_dns
-      loop: "{{ domains }}"
-      loop_control:
-        loop_var: domain
+      vars:
+        domain: "{{ dokku_hostname }}"

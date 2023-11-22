@@ -1,16 +1,29 @@
 ---
-- name: Run default apps configurations
-  import_tasks: default_config.yml
+- name: Create app
+  dokku_app:
+    app: "{{ app_name }}"
 
-- name: Deploy the app
-  import_tasks: deploy.yml
+- name: Set domains
+  dokku_domains:
+    app: "{{ app_name }}"
+    domains: "{{ app_secrets.app_domains | default([]) }}"
+    state: set
 
-# TODO: figure out a better workflow. letsencrypt probably needs its own playbook.
+- name: Create postgres service
+  environment: "{{ app_configs.postgres.environment | default({}) }}"
+  dokku_service_create:
+    name: "{{ app_secrets.postgres.name }}"
+    service: postgres
+  when: app_secrets.postgres is defined
 
-# - name: Build Placeholder App
-#   import_tasks: build_placeholder_app.yml
-#   tags: build_placeholder_app
+- name: Link postgres service
+  dokku_service_link:
+    app: "{{ app_name }}"
+    name: "{{ app_secrets.postgres.name }}"
+    service: postgres
+  when: app_secrets.postgres is defined
 
-# - name: Enable letsencrypt
-#   import_tasks: letsencrypt.yml
-#   when: app_secrets.letsencrypt | bool
+- name: Add environment variables
+  dokku_config:
+    app: "{{ app_name }}"
+    config: "{{ app_secrets.config | default({}) }}"
