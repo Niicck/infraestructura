@@ -6,11 +6,8 @@
     name: app_secrets
   tags: "app={{ app_name }}"
 
-- name: Run initial app configuration
+- name: Enable letsencrypt for app
   import_role:
-    name: dokku_app
-  tags: "app={{ app_name }}"
-
-- name: Run any additional app configurations
-  import_tasks: "apps/{{ app_name }}/tasks/deploy.yml"
+    name: letsencrypt_app
+  when: app_secrets.letsencrypt | bool
   tags: "app={{ app_name }}"

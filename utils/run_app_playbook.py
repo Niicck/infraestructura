@@ -16,13 +16,13 @@ Args:
 
 Examples:
     Configure all apps on staging:
-    >>> python configure_apps.py staging
+    >>> configure_apps staging
     
     Configure supergood-reads app on staging:
-    >>> python configure_apps.py staging --tags app=supergood-reads
+    >>> configure_apps staging --tags app=supergood-reads
 
     Add extra --skip-tags:
-    >>> python configure_apps.py staging --skip-tags app=supergood-reads
+    >>> configure_apps staging --skip-tags app=supergood-reads
 
 Explanation:
     We need this script because importing the dokku_bot.ansible_dokku role will run all
@@ -33,7 +33,7 @@ Explanation:
     unnecessary tasks run by ansible_dokku's 2 dependency roles (geerlingguy.docker and
     nginxinc.nginx).
 """
-def main():
+def run_app_playbook(playbook: str = "playbooks/configure_apps.yml"):
     parser = argparse.ArgumentParser(description='Wrapper script for ansible-playbook')
     parser.add_argument('env', type=str, help='The server to ssh into')
     parser.add_argument('ansible_args', nargs=argparse.REMAINDER, help='Arguments to pass to ansible-playbook')
@@ -75,7 +75,7 @@ def main():
 
     # Construct the final command
     final_command = (
-        ['ansible-playbook', "-i", f"inventories/{args.env}", "playbooks/configure_apps.yml"]
+        ['ansible-playbook', "-i", f"inventories/{args.env}", playbook]
         + invoked_by_script_args
         + skip_tag_args
         + docker_role_args
@@ -85,6 +85,3 @@ def main():
     # Run the command
     print(" ".join(final_command))
     subprocess.run(final_command)
-
-if __name__ == '__main__':
-    main()

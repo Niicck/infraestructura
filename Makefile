@@ -8,4 +8,4 @@ export
 # Install ansible requirements
 .PHONY: install
 install:
-	ansible-galaxy install -r requirements.yml
+	ansible-galaxy install -r requirements.yml -i

@@ -1,0 +1,18 @@
+---
+- name: Test that app deployed successfully
+  ansible.builtin.uri:
+    url: "http://{{ app_secrets.app_domains[0]}}"
+    return_content: true
+    follow_redirects: all
+
+
+
+# Check if docker_deploy: true
+
+# Check if letsencrypt is already enabled? Before running through the whole rigmarole
+
+
+- name: Enable letsencrypt
+  dokku_letsencrypt:
+    app: "{{ app_name }}"
+  when: res is not failed

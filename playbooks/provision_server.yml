@@ -5,14 +5,13 @@
   gather_facts: true
   vars:
     domains:
-      - supergood.site
-      - nickivons.com
+      - supergoodapp.site
 
     hetzner_ssh_key_name: nick-macbook
-    hetzner_server_name_base: supergood-dokku
-    
+    hetzner_server_name_base: supergood-app-dokku
+
     # The project_label value is used by the label_selector in hcloud.yml dynamic inventory.
-    hetzner_project_label: supergood-dokku
+    hetzner_project_label: supergood-app-dokku
 
   tasks:
     - name: Provision Hetzner server

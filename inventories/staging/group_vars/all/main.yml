@@ -1,5 +1,4 @@
 env: staging
 
 apps:
-  - supergood-site
   - supergood-reads

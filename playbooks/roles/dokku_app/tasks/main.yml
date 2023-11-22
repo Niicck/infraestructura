@@ -2,6 +2,9 @@
 - name: Run default apps configurations
   import_tasks: default_config.yml
 
+- name: Deploy the app
+  import_tasks: deploy.yml
+
 # TODO: figure out a better workflow. letsencrypt probably needs its own playbook.
 
 # - name: Build Placeholder App

@@ -1,4 +1,0 @@
----
-- name: Placeholder for additional configs
-  command: echo "Placeholder for additional configs"
-  when: false

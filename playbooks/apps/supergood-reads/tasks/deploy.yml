@@ -1,0 +1,31 @@
+---
+- name: Set PORT value
+  dokku_config:
+    app: "{{ app_name }}"
+    config:
+      PORT: "{{ app_secrets.port }}"
+
+- name: Pull latest image
+  become: true
+  community.docker.docker_image:
+    name: "{{ app_secrets.docker_image }}"
+    source: pull
+
+- name: Deploy image
+  dokku_image:
+      app: "{{ app_name }}"
+      image: "{{ app_secrets.docker_image }}"
+
+# TODO: when ansible_dokku gets updated, then dokku_ports command will work again
+# See: https://github.com/dokku/ansible-dokku/issues/159
+- name: Add http:80 port mapping
+  command: "dokku ports:add {{ app_name }} http:80:{{ app_secrets.port }}"
+
+- name: Enable letsencrypt
+  dokku_letsencrypt:
+    app: "{{ app_name }}"
+
+# TODO: when ansible_dokku gets updated, then dokku_ports command will work again
+# See: https://github.com/dokku/ansible-dokku/issues/159
+- name: Add https:443 port mapping
+  command: "dokku ports:add {{ app_name }} https:443:{{ app_secrets.port }}"

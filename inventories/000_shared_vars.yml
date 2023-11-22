@@ -1,6 +1,6 @@
 # These vars are shared among all (non-localhost) groups in all env inventories.
 
-dokku_hostname_base: supergood.site
+dokku_hostname_base: supergoodapp.site
 
 dokku_users:
   - name: Nick

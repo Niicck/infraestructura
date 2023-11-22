@@ -46,11 +46,13 @@ After that, install the project's additional ansible galaxy dependencies.
 make install
 ```
 
-Then install the python dependencies required by those ansible galaxy depedencies.
+Then install the python dependencies required by those ansible galaxy dependencies and local `setup.py` scripts.
 
 ```bash
-pip install -r requirements.txt
+pip install .
 ```
+
+(or `pip install -e .` if you're still editing your `setup.py` scripts.)
 
 ### 2. Create local .env and var files
 
@@ -146,23 +148,37 @@ Install dokku on your Hetzner servers and set up initial global configs.
 ansible-playbook -i inventories/staging playbooks/install_dokku.yml
 ```
 
-### 5. Create apps
+### 5. Configure apps
 
-Follow the development guide below to configure your own dokku apps. Then run this playbook to create or update app instances on your dokku server.
+Follow the development guide below to configure your dokku apps. Then run this playbook to create or update app instances on your dokku server.
 
 ```bash
-ansible-playbook -i inventories/staging playbooks/configure_apps.yml
+configure_apps staging
 ```
 
 Now you'll have a dokku app environment ready for you to deploy containers to.
+
+### 6. Deploy app
+
+This is done on your own. See the [official docs](https://dokku.com/docs/deployment/application-deployment/#deploy-the-app) for details.
+
+### 7. Enable encryption
+
+Once your app is deployed, then you can enable letsecrypt SSL for it.
+
+If you deployed with a Dockerfile or `git:from-image`, then you must set `docker_deploy: true` in your app `[app_name].secrets.yml`. [Read more](https://github.com/dokku/dokku-letsencrypt#dockerfile-and-image-based-deploys)
+
+```sh
+ansible-playbook -i inventories/staging playbooks/encrypt_apps.yml
+```
 
 ## Development Guide
 
 ### Creating Dokku Apps
 
-An "app" in dokku is not the same as your actual web application that you want to deploy on your dokku server. The dokku app is basically everything that will surround your actual web application: the database services, networking, routing, environment variables.
+An "app" in dokku is not the same as the actual web application that you want to deploy on your dokku server. The dokku app is everything that will surround your actual web application: the database services, networking, routing, environment variables.
 
-These steps will put everything in place so that you'll have  a dokku app that you can `push` your actual containers to.
+These steps will put everything in place so that you'll have a dokku app to which you can `push`` your containers.
 
 #### 1. Define your apps
 
@@ -208,8 +224,7 @@ config:
 
 Any future changes to your environment variables can be re-deployed using the same `configure_app.yml` playbook:
 ```bash
-å
-ansible-playbook -i inventories/staging playbooks/configure_apps.yml
+configure_apps staging --app=your_app_name
 ```
 
 #### 5. Make additional configuration steps, as needed
@@ -223,7 +238,7 @@ Additional scripts or files used by your app's `extended_config.yml` should live
 You can apply any of those changes to your dokku app with:
 
 ```bash
-ansible-playbook -i inventories/staging playbooks/configure_apps.yml --tags app=your_app_name
+configure_apps staging --app=your_app_name
 ```
 
 Note the use of `--tags` to target only one app, rather than every dokku app living on the staging server.
@@ -237,7 +252,7 @@ But there are still some situations when you might need to manually inspect or r
 
 You can ssh into your dokku host server using this utility:
 ```bash
-python ssh.py staging
+ssh-env staging
 ```
 
 ## Areas for Improvement

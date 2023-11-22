@@ -8,7 +8,7 @@
   tasks:
     - name: Make .env
       template:
-        src: .env.example
+        src: "{{ playbook_dir }}/../.env.example"
         dest: "{{ playbook_dir }}/../.env"
         force: no
 

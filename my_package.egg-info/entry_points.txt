@@ -1,0 +1,4 @@
+[console_scripts]
+configure_apps = utils.configure_apps:main
+encrypt_apps = utils.encrypt_apps:main
+ssh-env = utils.ssh_env:main
