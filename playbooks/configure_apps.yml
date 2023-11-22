@@ -12,15 +12,18 @@
         that:
           - invoked_by_script
         fail_msg: "Don't run this playbook directly. Please run `python configure_apps.py {{env}} ...` instead."
+      tags: always
 
     - name: Run role without running any tasks
       # See: https://github.com/dokku/ansible-dokku/pull/137#issuecomment-1280024359
       import_role: 
         name: dokku_bot.ansible_dokku
         tasks_from: init.yml
+      tags: always
 
     - name: "Configure apps"
       include_tasks: tasks/configure_single_app.yml
       loop_control:
         loop_var: app_name
       loop: "{{ apps }}"
+      tags: always

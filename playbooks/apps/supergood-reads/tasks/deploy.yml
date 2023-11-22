@@ -21,11 +21,15 @@
 - name: Add http:80 port mapping
   command: "dokku ports:add {{ app_name }} http:80:{{ app_secrets.port }}"
 
-- name: Test that app deployed successfully
+- name: Check that app finished deploying successfully
   ansible.builtin.uri:
     url: "http://{{ app_secrets.app_domains[0]}}"
     return_content: true
     follow_redirects: all
+  register: result
+  until: result is success
+  retries: 12
+  delay: 5
 
 - name: Enable letsencrypt
   dokku_letsencrypt:
