@@ -224,7 +224,7 @@ config:
 
 Any future changes to your environment variables can be re-deployed using the same `configure_app.yml` playbook:
 ```bash
-configure_apps staging --app=your_app_name
+configure_apps staging  --tags app=your_app_name
 ```
 
 #### 5. Make additional configuration steps, as needed
@@ -238,7 +238,7 @@ Additional scripts or files used by your app's `extended_config.yml` should live
 You can apply any of those changes to your dokku app with:
 
 ```bash
-configure_apps staging --app=your_app_name
+configure_apps staging  --tags app=your_app_name
 ```
 
 Note the use of `--tags` to target only one app, rather than every dokku app living on the staging server.

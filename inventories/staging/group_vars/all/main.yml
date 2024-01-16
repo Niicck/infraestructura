@@ -9,3 +9,4 @@ dokku_users:
 
 apps:
   - supergood-reads
+  - django-vue-experiments
